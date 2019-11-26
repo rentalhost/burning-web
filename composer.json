@@ -1,0 +1,59 @@
+{
+    "type": "project",
+    "name": "rentalhost/burning-web",
+    "description": "A web solution to read the Burning output.",
+    "version": "0.1.0",
+    "license": "MIT",
+
+    "keywords": [ "burning", "web", "interface" ],
+
+    "authors": [
+        {
+            "name": "David Rodrigues",
+            "email": "david.rodrigues@rentalhost.net",
+            "homepage": "https://rentalhost.net",
+            "role": "Developer"
+        },
+        {
+            "name": "Leonardo Rodrigues",
+            "email": "leonardo.rodrigues@rentalhost.net",
+            "homepage": "https://rentalhost.net",
+            "role": "Design"
+        }
+    ],
+
+    "require": {
+        "php": "^7.3",
+        "ext-json": "*",
+        "fideloper/proxy": "^4.2",
+        "laravel/framework": "^6.6",
+        "laravel/tinker": "^2.0"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "Rentalhost\\BurningWeb\\": "app/"
+        }
+    },
+
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+
+    "prefer-stable": true,
+
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi"
+        ]
+    }
+}
