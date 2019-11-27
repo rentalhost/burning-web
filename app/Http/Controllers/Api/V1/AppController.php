@@ -33,4 +33,16 @@ class AppController
             ]
         ]);
     }
+
+    public function appSessions(): JsonResponse
+    {
+        return JsonResponse::create([
+            'sessions' => array_map(static function (string $sessionPath) {
+                return [
+                    'name'     => basename($sessionPath),
+                    'creation' => filectime($sessionPath)
+                ];
+            }, BurningService::getBurningSessions())
+        ]);
+    }
 }

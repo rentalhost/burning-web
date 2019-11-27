@@ -21,6 +21,7 @@ class RouteServiceProvider
             ->prefix('/api/v1')
             ->group(static function () {
                 Route::get('/app', [ AppController::class, 'app' ]);
+                Route::get('/app/sessions', [ AppController::class, 'appSessions' ]);
             });
 
         Route::middleware('web')
