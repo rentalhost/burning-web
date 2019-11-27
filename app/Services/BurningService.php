@@ -21,7 +21,7 @@ class BurningService
         $allowedPrefixes = self::getDirectoriesComposerCompatible();
         $burningJson     = self::getBurningJson();
 
-        if (!Arr::get($burningJson, 'ignoreDevelopmentPaths')) {
+        if (Arr::get($burningJson, 'includeDevelopmentPaths')) {
             $allowedPrefixes = array_merge($allowedPrefixes, self::getDirectoriesComposerCompatible(true));
         }
 
