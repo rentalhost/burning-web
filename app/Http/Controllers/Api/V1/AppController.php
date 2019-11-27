@@ -40,9 +40,9 @@ class AppController
         $workingDirectory = BurningService::getWorkingDirectory();
 
         return JsonResponse::create([
-            'files' => array_map(static function (\SplFileInfo $fileInfo) use ($workingDirectory) {
-                return substr(PathService::normalizeFile($fileInfo->getPathname()), strlen($workingDirectory) + 1);
-            }, iterator_to_array(BurningService::getAppDirectoryStructure(), false))
+            'files' => array_map(static function (string $path) use ($workingDirectory) {
+                return substr(PathService::normalizeFile($path), strlen($workingDirectory) + 1);
+            }, BurningService::getAppFiles())
         ]);
     }
 

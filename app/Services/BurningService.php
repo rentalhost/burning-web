@@ -6,7 +6,6 @@ namespace Rentalhost\BurningWeb\Services;
 
 use ColinODell\Json5\Json5Decoder;
 use Illuminate\Support\Arr;
-use Rentalhost\BurningWeb\Services\Filter\DirectoryFilter;
 
 class BurningService
 {
@@ -16,23 +15,20 @@ class BurningService
     /** @var array|null */
     private static $burningJson;
 
-    public static function getAppDirectoryStructure(): DirectoryFilter
+    public static function getAppFiles(): array
     {
-        $allowedPrefixes = self::getDirectoriesComposerCompatible();
-        $burningJson     = self::getBurningJson();
+        $allowedPaths = self::getDirectoriesComposerCompatible();
+        $burningJson  = self::getBurningJson();
 
         if (Arr::get($burningJson, 'includeDevelopmentPaths')) {
-            $allowedPrefixes = array_merge($allowedPrefixes, self::getDirectoriesComposerCompatible(true));
+            $allowedPaths = array_merge($allowedPaths, self::getDirectoriesComposerCompatible(true));
         }
 
-        $allowedPrefixes = array_map([ PathService::class, 'normalizeDirectory' ], $allowedPrefixes);
+        $allowedPaths = array_map([ PathService::class, 'normalizeDirectory' ], $allowedPaths);
 
-        return new DirectoryFilter(new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator(self::getWorkingDirectory(),
-                \FilesystemIterator::SKIP_DOTS |
-                \FilesystemIterator::UNIX_PATHS
-            )
-        ), $allowedPrefixes, [ 'php' ]);
+        return array_merge(... array_map(static function (string $allowedPath) {
+            return iterator_to_array(PathService::getFilesRecursively($allowedPath, false, [ 'php' ]), false);
+        }, $allowedPaths));
     }
 
     public static function getBurningDefaultJson(): ?array
