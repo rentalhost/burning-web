@@ -6,6 +6,7 @@ namespace Rentalhost\BurningWeb\Providers;
 
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Rentalhost\BurningWeb\Http\Controllers\Api\V1\AppController;
 
 class RouteServiceProvider
     extends ServiceProvider
@@ -19,6 +20,7 @@ class RouteServiceProvider
             ->namespace($this->namespace)
             ->prefix('/api/v1')
             ->group(static function () {
+                Route::get('/app', [ AppController::class, 'app' ]);
             });
 
         Route::middleware('web')
