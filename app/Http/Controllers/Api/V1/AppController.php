@@ -9,6 +9,7 @@ use Rentalhost\BurningWeb\Http\Controllers\Controller;
 use Rentalhost\BurningWeb\Services\BurningService;
 use Rentalhost\BurningWeb\Services\ComposerService;
 use Rentalhost\BurningWeb\Services\GitService;
+use Rentalhost\BurningWeb\Services\PathService;
 
 class AppController
     extends Controller
@@ -31,6 +32,17 @@ class AppController
                 'branch'  => GitService::getCurrentBranchName(),
                 'commit'  => GitService::getLastCommitHash()
             ]
+        ]);
+    }
+
+    public function appFiles(): JsonResponse
+    {
+        $workingDirectory = BurningService::getWorkingDirectory();
+
+        return JsonResponse::create([
+            'files' => array_map(static function (\SplFileInfo $fileInfo) use ($workingDirectory) {
+                return substr(PathService::normalizeFile($fileInfo->getPathname()), strlen($workingDirectory) + 1);
+            }, iterator_to_array(BurningService::getAppDirectoryStructure(), false))
         ]);
     }
 

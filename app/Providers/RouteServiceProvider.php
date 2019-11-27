@@ -22,6 +22,7 @@ class RouteServiceProvider
             ->group(static function () {
                 Route::get('/app', [ AppController::class, 'app' ]);
                 Route::get('/app/sessions', [ AppController::class, 'appSessions' ]);
+                Route::get('/app/files', [ AppController::class, 'appFiles' ]);
             });
 
         Route::middleware('web')

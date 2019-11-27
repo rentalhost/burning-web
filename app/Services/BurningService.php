@@ -6,6 +6,7 @@ namespace Rentalhost\BurningWeb\Services;
 
 use ColinODell\Json5\Json5Decoder;
 use Illuminate\Support\Arr;
+use Rentalhost\BurningWeb\Services\Filter\DirectoryFilter;
 
 class BurningService
 {
@@ -14,6 +15,25 @@ class BurningService
 
     /** @var array|null */
     private static $burningJson;
+
+    public static function getAppDirectoryStructure(): DirectoryFilter
+    {
+        $allowedPrefixes = self::getDirectoriesComposerCompatible();
+        $burningJson     = self::getBurningJson();
+
+        if (!Arr::get($burningJson, 'ignoreDevelopmentPaths')) {
+            $allowedPrefixes = array_merge($allowedPrefixes, self::getDirectoriesComposerCompatible(true));
+        }
+
+        $allowedPrefixes = array_map([ PathService::class, 'normalizeDirectory' ], $allowedPrefixes);
+
+        return new DirectoryFilter(new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(self::getWorkingDirectory(),
+                \FilesystemIterator::SKIP_DOTS |
+                \FilesystemIterator::UNIX_PATHS
+            )
+        ), $allowedPrefixes, [ 'php' ]);
+    }
 
     public static function getBurningDefaultJson(): ?array
     {
@@ -50,7 +70,31 @@ class BurningService
 
     public static function getWorkingDirectory(): string
     {
-        return str_replace('\\', '/', file_get_contents(storage_path('cwd')));
+        return file_get_contents(storage_path('cwd'));
+    }
+
+    private static function getDirectoriesComposerCompatible(?bool $devMode = null): array
+    {
+        $composerJson     = ComposerService::getComposerJson();
+        $workingDirectory = self::getWorkingDirectory();
+        $directoryPath    = $devMode !== true ? 'autoload' : 'autoload-dev';
+
+        $files       = Arr::get($composerJson, $directoryPath . '.files', []);
+        $directories = Arr::get($composerJson, $directoryPath . '.psr-4', []);
+
+        $files = array_map(static function (string $path) use ($workingDirectory) {
+            return realpath($workingDirectory . DIRECTORY_SEPARATOR . $path);
+        }, array_filter($files, static function (string $path) use ($workingDirectory) {
+            return is_file($workingDirectory . DIRECTORY_SEPARATOR . $path);
+        }));
+
+        $directories = array_map(static function (string $path) use ($workingDirectory) {
+            return realpath($workingDirectory . DIRECTORY_SEPARATOR . $path) . DIRECTORY_SEPARATOR;
+        }, array_filter($directories, static function (string $path) use ($workingDirectory) {
+            return is_dir($workingDirectory . DIRECTORY_SEPARATOR . $path);
+        }));
+
+        return array_values(array_merge($files, $directories));
     }
 
     private static function loadJson(string $path, ?array $default = null): ?array

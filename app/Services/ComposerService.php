@@ -11,17 +11,7 @@ class ComposerService
     /** @var array|null */
     private static $composerJson;
 
-    public static function getPackageName(): ?string
-    {
-        return Arr::get(self::getComposerJson(), 'name');
-    }
-
-    public static function isAvailable(): bool
-    {
-        return self::getComposerJson() !== null;
-    }
-
-    private static function getComposerJson(): ?array
+    public static function getComposerJson(): ?array
     {
         if (self::$composerJson === null) {
             $composerJsonPath = BurningService::getWorkingDirectory() . '/composer.json';
@@ -32,5 +22,15 @@ class ComposerService
         }
 
         return self::$composerJson;
+    }
+
+    public static function getPackageName(): ?string
+    {
+        return Arr::get(self::getComposerJson(), 'name');
+    }
+
+    public static function isAvailable(): bool
+    {
+        return self::getComposerJson() !== null;
     }
 }
