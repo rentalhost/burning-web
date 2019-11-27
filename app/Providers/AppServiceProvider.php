@@ -18,6 +18,8 @@ class AppServiceProvider
         /** @noinspection UsingInclusionOnceReturnValueInspection */
         $kernel = (require_once __DIR__ . '/../../bootstrap/app.php')->make(Kernel::class);
 
+        file_put_contents(storage_path('cwd'), getcwd());
+
         $input  = new ArgvInput;
         $status = $kernel->handle($input, new ConsoleOutput);
 
